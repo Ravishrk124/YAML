@@ -1,0 +1,97 @@
+# ----------------------------
+# 1. Basic Key-Value
+# ----------------------------
+app_name: brahmx
+version: 1.0
+is_active: true
+
+# ----------------------------
+# 2. Comments
+# ----------------------------
+# This is a comment (ignored by YAML)
+
+# ----------------------------
+# 3. Lists
+# ----------------------------
+technologies:
+  - Node.js
+  - MongoDB
+  - Docker
+
+# Inline list
+ports: [3000, 8080, 27017]
+
+# ----------------------------
+# 4. Nested Objects (Dictionaries)
+# ----------------------------
+database:
+  name: brahmx_db
+  host: localhost
+  port: 27017
+
+# ----------------------------
+# 5. Multi-line Strings
+# ----------------------------
+
+# Literal (keeps line breaks)
+startup_script_literal: |
+  echo "Starting app"
+  npm install
+  npm run dev
+
+# Folded (joins into one line)
+startup_script_folded: >
+  echo "Starting app"
+  npm install
+  npm run dev
+
+# ----------------------------
+# 6. Anchors & Aliases (Reusability)
+# ----------------------------
+
+default_env: &default_env
+  NODE_ENV: development
+  LOG_LEVEL: debug
+
+service1:
+  environment:
+    <<: *default_env
+    PORT: 3000
+
+service2:
+  environment:
+    <<: *default_env
+    PORT: 4000
+
+# ----------------------------
+# 7. Custom-like Structure (Docker-style)
+# ----------------------------
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: pass
+
+  app:
+    image: node:18
+    depends_on:
+      - mongo
+    command: >
+      sh -c "npm install && npm run dev"
+    environment:
+      DB_HOST: mongo
+
+# ----------------------------
+# 8. Healthcheck Example
+# ----------------------------
+healthcheck:
+  test:
+    - "CMD-SHELL"
+    - "pg_isready -U brahmx"
+  interval: 3s
+  timeout: 3s
+  retries: 5
